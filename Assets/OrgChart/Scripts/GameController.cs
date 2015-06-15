@@ -96,36 +96,6 @@ public class GameController : MonoBehaviour {
 
 
 
-  void doPlan(){
-    var staffs = new List<StaffNodePresenter> ();
-    orgRoot.GetComponentsInChildren<StaffNodePresenter> (staffs);
-
-    var wlist = ProjectManager.Instance.workingProject;
-    if (wlist.Count < 1) {
-      return;
-    }
-    var quest = wlist [0];
-
-
-    foreach (StaffNodePresenter s in staffs) {
-      if (.5f > UnityEngine.Random.value) {
-        quest.health.Value -= s.currentLevel.Value;
-        
-      }
-    }
-    /*
-
-
-    foreach( Transform t in workingProjectContainer){
-      ProjectPresenter proj = t.GetComponent<ProjectPresenter>();
-
-      if (0 >= proj.health.Value) {
-        money.Value += proj.reward.Value;
-        Destroy (t.gameObject);
-      }
-    }
-*/
-  }
 
 
 
