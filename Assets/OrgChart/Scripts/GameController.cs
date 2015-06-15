@@ -37,7 +37,7 @@ public class GameController : MonoBehaviour {
 
   public IConnectableObservable<long> battleTimer;
 
-  public const int retirementAge = 40;
+  public const int retirementAge = 30;
 
   private static GameController s_Instance;
   public static GameController Instance {
@@ -463,7 +463,7 @@ public class GameController : MonoBehaviour {
 
   StaffModel createStaffModel(){
     var s = new StaffModel ();
-    var age = UnityEngine.Random.Range(0,35);
+    var age = UnityEngine.Random.Range(0,30);
 
     age = (int)(UDFs.BetaInv (UnityEngine.Random.value, 1.4d, 1d, 0, 0) * 40);
 
