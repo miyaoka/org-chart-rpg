@@ -113,8 +113,6 @@ public class NodePresenter : MonoBehaviour {
           .AddTo(staffResources);
           */
 
-
-
       
       })
       .AddTo (this);

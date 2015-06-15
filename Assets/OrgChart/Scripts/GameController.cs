@@ -232,66 +232,6 @@ public class GameController : MonoBehaviour {
     logText.Value += log + "\n";
 
   }
-  public void battle(){
-    var q = selectedQuest.Value;
-    if (q == null) {
-      return;
-    }
-    var staffs = new List<StaffNodePresenter> ();
-    StaffNodePresenter[] nodes = orgRoot.GetComponentsInChildren<StaffNodePresenter> ();
-    foreach (StaffNodePresenter n in nodes) {
-      var s = n.staff.Value;
-      if(s == null) {
-        continue;
-      }
-      staffs.Add (n);
-    }
-    if (1 > staffs.Count) {
-      return;
-    }
-
-
-    foreach (StaffNodePresenter s in staffs) {
-      var log = s.staff.Value.name.Value + "の攻撃、";
-      if (.5f > UnityEngine.Random.value) {
-        var d = s.currentLevel.Value;
-        log += d.ToString () + "ダメージ与えた！";
-        q.health.Value -= (float)d;
-      } else {
-        log += "ミス";
-      }
-      logText.Value += log + "\n";
-    }
-
-    var count = (int)q.attackerCount.Value;
-    while (0 < count--) {
-      var s = staffs [UnityEngine.Random.Range (0, staffs.Count)];
-      var sname = s.staff.Value.name.Value;
-      var log = sname + "は";
-
-      var dmgObj = Instantiate(damagePrefab);
-      dmgObj.transform.SetParent (s.staffUI.transform, false);
-
-//      dmgObj.transform.position = s.transform.position;
-//      Debug.Log (s.transform.position);
-      var dp = dmgObj.GetComponent<DamagePresenter> ();
-
-      if (.5f > UnityEngine.Random.value) {
-        var d = 1;
-        dp.pop (d.ToString ());
-        log += d.ToString () + "ダメージ受けた！";
-        s.staff.Value.health.Value -= d;
-        if (0 >= s.staff.Value.health.Value) {
-          log += sname + "は死亡した";
-        }
-      } else {
-        dp.pop ("0");
-        log += "攻撃をかわした";
-      }
-      logText.Value += log + "\n";
-    }
-
-  }
 
 
 
@@ -482,30 +422,5 @@ public class GameController : MonoBehaviour {
     s.clothColor.Value = Util.HSVToRGB (UnityEngine.Random.Range(0,1f), .4f, .7f);
 
     return s;
-  }
-  /*
-  StaffData createStaffData(){
-    StaffData data = new StaffData ();
-    int age = UnityEngine.Random.Range(0,35);
-
-    age = (int)(UDFs.BetaInv (UnityEngine.Random.value, 1.4d, 1d, 0, 0) * 40);
-
-    int baseSkill = UnityEngine.Random.Range(1,1);
-    for(int i = 0; i < age; i++){
-      baseSkill = growSkill (i, baseSkill);
-    }
-    data.baseLevel = data.lastLevel = Mathf.CeilToInt((float)baseSkill * .625f);
-    data.age = age;
-    data.gender = (.2f > UnityEngine.Random.value) ? 0 : 1;
-    data.name = Names.getRandomName (data.gender);
-
-    return data;
-  }
-  */
-
-
-  // Update is called once per frame
-  void Update () {
-
   }
 }
