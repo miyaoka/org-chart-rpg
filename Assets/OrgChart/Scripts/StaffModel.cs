@@ -17,5 +17,6 @@ public class StaffModel {
   public ReactiveProperty<Color> hairColor = new ReactiveProperty<Color>();
   public ReactiveProperty<Color> clothColor = new ReactiveProperty<Color>();
 
+  public ReactiveProperty<float> recruitCost = new ReactiveProperty<float>();
 
 }

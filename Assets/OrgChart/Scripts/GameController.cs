@@ -80,7 +80,7 @@ public class GameController : MonoBehaviour {
 
     startYear ();
 
-    money.Value = 100;
+    money.Value = 5000;
 
 
 
@@ -311,7 +311,7 @@ public class GameController : MonoBehaviour {
     foreach( Transform t in recruitContainer){
       Destroy (t.gameObject);
     }
-    int count = UnityEngine.Random.Range (3, 4);
+    int count = UnityEngine.Random.Range (4, 7);
     for(int i = 0; i < count; i++){
       createStaffNode (createStaffModel(), recruitContainer);
     }
@@ -341,8 +341,12 @@ public class GameController : MonoBehaviour {
     }
 
     node.isAssigned.Value = false;
-//    node.isMoved = true;
-    GameSounds.drop.Play();
+    if (!node.isHired.Value) {
+      money.Value -= node.staff.Value.recruitCost.Value;
+      GameSounds.accounting.Play ();
+    } else {
+      GameSounds.drop.Play();
+    }
   }
   private void moveStaffToStaff(StaffNodePresenter node, StaffNodePresenter parentStaff){
     int tierDiff = node.tier.Value - parentStaff.tier.Value;
@@ -382,15 +386,16 @@ public class GameController : MonoBehaviour {
 
   StaffModel createStaffModel(){
     var s = new StaffModel ();
-    var age = UnityEngine.Random.Range(0,30);
+    var age = UnityEngine.Random.Range(0,35);
 
 //    age = (int)(UDFs.BetaInv (UnityEngine.Random.value, 1.4d, 1d, 0, 0) * 40);
 
-    int baseSkill = UnityEngine.Random.Range(1,1);
+    var baseSkill = UnityEngine.Random.Range(1,1);
     for(int i = 0; i < age; i++){
       baseSkill = growSkill (i, baseSkill);
     }
-    s.baseLevel.Value = s.lastLevel.Value = Mathf.CeilToInt ((float)baseSkill * 1f);//.725f);
+    var level = Mathf.CeilToInt ((float)baseSkill * 1f);//.725f);
+    s.baseLevel.Value = s.lastLevel.Value = level;
     s.age.Value = age;
     s.gender.Value = (.2f > UnityEngine.Random.value) ? 0 : 1;
     s.name.Value = Names.getRandomName (s.gender.Value);
@@ -399,6 +404,13 @@ public class GameController : MonoBehaviour {
     s.skinColor.Value = Util.HSVToRGB (.1f, UnityEngine.Random.Range(.25f, .8f), UnityEngine.Random.Range (1f, 1f));
     s.hairColor.Value = Util.HSVToRGB (UnityEngine.Random.Range(0,1f), .5f, UnityEngine.Random.Range (.3f, .65f));
     s.clothColor.Value = Util.HSVToRGB (UnityEngine.Random.Range(0,1f), .4f, .7f);
+
+    //引退年齢で100%、若いと最大300%
+    var potentialBonus =  (1f - ((float)age / (float)retirementAge)) * 2f + 1f;
+    var roundUnit = 10f;
+    var baseCost = 100f;
+    var levelCost = Mathf.Pow(1.3f, (level - 1f)) * baseCost;
+    s.recruitCost.Value = Mathf.Round (levelCost * potentialBonus / roundUnit) * roundUnit;
 
     return s;
   }

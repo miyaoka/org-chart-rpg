@@ -11,6 +11,9 @@ public class StaffDataPresenter : MonoBehaviour {
   [SerializeField] RectTransform healthUI;
   [SerializeField] Text nameText;
   [SerializeField] RectTransform avatarUI;
+  [SerializeField] GameObject costUI;
+  [SerializeField] Text costText;
+
 
 
   //model
@@ -75,6 +78,15 @@ public class StaffDataPresenter : MonoBehaviour {
       .Subscribe (s => {
 
         staffResources.Clear();
+
+        node.isHired
+          .Subscribe(h => costUI.SetActive(!h))
+          .AddTo(staffResources);
+
+        s.recruitCost
+          .SubscribeToText(costText)
+          .AddTo(staffResources);
+
 
         s.baseLevel
           .CombineLatest(node.hasChild, (l, r) => r ? "/" + l : "" )
