@@ -28,6 +28,8 @@ public class QuestPresenter : MonoBehaviour, IPointerDownHandler {
   public ReactiveProperty<float> reward = new ReactiveProperty<float>();
   public ReactiveProperty<float> attackInterval = new ReactiveProperty<float>(5);
   public ReactiveProperty<float> attackTimer = new ReactiveProperty<float>();
+  public ReactiveProperty<float> attackDamage = new ReactiveProperty<float>();
+  public ReactiveProperty<float> attackCount = new ReactiveProperty<float>();
 	// Use this for initialization
 	protected void Start () {
 
@@ -47,8 +49,9 @@ public class QuestPresenter : MonoBehaviour, IPointerDownHandler {
       .SubscribeToText (healthText)
       .AddTo (this);
 
-    attack
-      .Select (v => v.ToString ("N0"))
+    attackDamage
+      .CombineLatest(attackCount, (l, r) => l.ToString ("N0") + " x " + r.ToString ("N0"))
+//      .Select (v => v.ToString ("N0"))
       .SubscribeToText (attackText)
       .AddTo (this);
 

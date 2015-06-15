@@ -118,26 +118,6 @@ public class GameController : MonoBehaviour {
       return;
     }
 
-    /*
-    var staffs = new List<object>();
-    orgRoot.GetComponentsInChildren<StaffNodePresenter> (staffs);
-
-
-    var enemys = new List<object> { 0, 1, 2, 3 };
-
-    var attacks = new List<object> ();
-    attacks.AddRange (staffs);
-    attacks.AddRange (enemys);
-
-    attacks.Randomize ();
-//    var ra = Util.shuffleArrayList (attacks);
-
-    foreach(var r in attacks){
-      Debug.Log (r.GetType());
-    }
-    */
-
-
   }
   public void attackToQuest(NodePresenter s)
   {
@@ -264,19 +244,24 @@ public class GameController : MonoBehaviour {
     q.title.Value = "Quest " + id.ToString ();
 
 
+    mp = Mathf.Max (10f, mp);
     float healthFactor = 5f;
     float healthLevel = UnityEngine.Random.value;
     float attackLevel = UnityEngine.Random.value;
-    float minHealth = 20f;
-    float health = Mathf.Max (minHealth, Mathf.Ceil (Mathf.Pow (healthFactor, healthLevel - .5f) * mp * 4));
+//    float minHealth = 20f;
+    //.5-2.5
+    float health = (healthLevel * 2f + .5f) * mp;
     q.maxHealth.Value = health;
     q.health.Value = health;// * UnityEngine.Random.value;
 
-    q.attack.Value = Mathf.Floor( attackLevel * mp );
+    var attackValue = (attackLevel + .1f) * mp * .2f;
+    var attackCount = Mathf.Ceil( attackValue/3f * (UnityEngine.Random.value * .5f + .5f));
+    q.attackDamage.Value = Mathf.Ceil (attackValue / attackCount);
+    q.attackCount.Value = attackCount;
 
-    q.attackerCount.Value = UnityEngine.Random.Range(1,3);
-
-    q.reward.Value = (int)Mathf.Floor(mp * (1f + healthLevel)  * ( 1f + UnityEngine.Random.value * 2f));
+    var baseReward = 15f;
+    var roundUnit = 10f;
+    q.reward.Value = Mathf.Round(mp * ( (1f + healthLevel) * (.2f + attackLevel) )  * baseReward / roundUnit) * roundUnit;
 
 
 
@@ -292,7 +277,7 @@ public class GameController : MonoBehaviour {
         Destroy (t.gameObject);
       }
     }
-    int count = UnityEngine.Random.Range (2, 4);
+    int count = UnityEngine.Random.Range (3, 6);
     for(int i = 0; i < count; i++){
       createQuest((float)manPower.Value);
       

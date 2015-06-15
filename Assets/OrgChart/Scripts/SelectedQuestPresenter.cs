@@ -15,6 +15,7 @@ public class SelectedQuestPresenter : MonoBehaviour {
   public GameObject hasQuest;
   public GameObject noQuest;
 
+  CompositeDisposable questResources = new CompositeDisposable();
 
 	// Use this for initialization
 	void Start () {
@@ -30,39 +31,44 @@ public class SelectedQuestPresenter : MonoBehaviour {
     gc.selectedQuest
       .Where(q => q)
       .Subscribe (q => {
+
+        questResources.Clear();
+
+
         
         q.health
           .CombineLatest (q.maxHealth, (l, r) => Mathf.Max(0, r == 0 ? 0 : l / r ))
           .Subscribe (w => healthUI.anchorMax = new Vector2(w, 1))
-          .AddTo (q);
+          .AddTo (questResources);
 
         q.title
           .SubscribeToText (titleText)
-          .AddTo (q);
+          .AddTo (questResources);
 
 
         q.health
           .CombineLatest (q.maxHealth, (l, r) => l.ToString("N0") + "/" + r.ToString("N0") )
 //          .Select (v => v.ToString ("N0"))
           .SubscribeToText (healthText)
-          .AddTo (q);
+          .AddTo (questResources);
 
-        q.attack
-          .Select (v => v.ToString ("N0"))
+        q.attackDamage
+          .CombineLatest(q.attackCount, (l, r) => l.ToString ("N0") + " x " + r.ToString ("N0"))
+//          .Select (v => v.ToString ("N0"))
           .SubscribeToText (attackText)
-          .AddTo (q);
+          .AddTo (questResources);
 
         q.reward
           .Select (v => v.ToString ("N0"))
           .SubscribeToText (rewardText)
-          .AddTo (q);        
+          .AddTo (questResources);        
 
         gc.onQuest
           .Where(_ => _)
           .Subscribe(_ => {
             q.attackInterval.Value = 5f;
             q.attackTimer.Value = 0;
-          }).AddTo(q);
+          }).AddTo(questResources);
 
         gc.battleTimer
           .Subscribe (_ => {
@@ -71,10 +77,13 @@ public class SelectedQuestPresenter : MonoBehaviour {
             if(q.attackInterval.Value <= q.attackTimer.Value){
               q.attackTimer.Value = 0;
               q.attackInterval.Value = (Random.value * .2f + .9f) * 5f;
-              gc.attackToStaff(Random.Range(1, 4));
+              var count = q.attackCount.Value;
+              while(count-- > 0){
+                gc.attackToStaff( (int)Mathf.Ceil( q.attackDamage.Value * Random.value) );
+              }
             }
           })
-          .AddTo (q);
+          .AddTo (questResources);
 
     });
 
