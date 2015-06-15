@@ -28,7 +28,7 @@ public class GameController : MonoBehaviour {
   public ReactiveProperty<StaffNodePresenter> draggingNode = new ReactiveProperty<StaffNodePresenter> ();
 
   public ReactiveProperty<int> year = new ReactiveProperty<int> (1);
-  public ReactiveProperty<int> money = new ReactiveProperty<int> ();
+  public ReactiveProperty<float> money = new ReactiveProperty<float> ();
   public ReactiveProperty<int> manPower = new ReactiveProperty<int> ();
   public ReactiveProperty<int> manCount = new ReactiveProperty<int> ();
 
@@ -187,6 +187,15 @@ public class GameController : MonoBehaviour {
       GameSounds.hit.Play ();
       log += d.ToString () + "ダメージ与えた！";
       q.health.Value -= (float)d;
+
+      //clear quest
+      if (0 >= q.health.Value) {
+        onQuest.Value = false;
+        selectedQuest.Value = null;
+        money.Value += q.reward.Value;
+        GameSounds.promote.Play ();
+        endYear ();
+      }
     } else {
       GameSounds.miss.Play ();
       dp.pop ("miss", Color.white, 20);
