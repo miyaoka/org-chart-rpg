@@ -143,13 +143,6 @@ public class StaffDataPresenter : MonoBehaviour {
           .Subscribe (w => healthUI.anchorMax = new Vector2(w, 1))
           .AddTo (staffResources);
 
-        s.health
-          .Select(h => 0 < h)
-          .Subscribe(l => {
-            avatarUI.localRotation = Quaternion.Euler(0, 0, l ? 0 : -90);
-          })
-          .AddTo(staffResources);
-
         gc.onQuest
           .Where(q => q)
           .Subscribe(q => {
@@ -157,26 +150,7 @@ public class StaffDataPresenter : MonoBehaviour {
             s.attackTimer.Value = s.attackInterval.Value * (Random.value * .5f + .5f);
           }).AddTo(staffResources);
 
-        gc.battleTimer
-          .CombineLatest(node.isHired, (l, r) => r)
-          .CombineLatest(s.health, (l, r) => l && 0 < r) 
-          .Where(r => r)
-          .Subscribe (_ => {
 
-            s.attackTimer.Value += Time.deltaTime;
-            if(s.attackInterval.Value <= s.attackTimer.Value){
-              s.attackTimer.Value = 0;
-              s.attackInterval.Value = (Random.value * .2f + .9f) * 5f;
-              LeanTween.cancel(avatarUI.gameObject);
-              var origX = avatarUI.localPosition.x;
-              LeanTween.moveLocalX (avatarUI.gameObject, origX - 20, .5f).setEase (LeanTweenType.easeOutBounce).setOnComplete( () => {
-                gc.attackToQuest(node);
-                LeanTween.moveLocalX (avatarUI.gameObject, origX, .3f).setEase (LeanTweenType.easeOutCubic);
-              });
-
-            }
-          })
-          .AddTo (staffResources);
 
     })
       .AddTo (this);

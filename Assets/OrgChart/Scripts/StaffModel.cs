@@ -13,5 +13,9 @@ public class StaffModel {
   public ReactiveProperty<float> attackInterval = new ReactiveProperty<float>();
   public ReactiveProperty<float> attackTimer = new ReactiveProperty<float>();
 
+  public ReactiveProperty<Color> skinColor = new ReactiveProperty<Color>();
+  public ReactiveProperty<Color> hairColor = new ReactiveProperty<Color>();
+  public ReactiveProperty<Color> clothColor = new ReactiveProperty<Color>();
+
 
 }

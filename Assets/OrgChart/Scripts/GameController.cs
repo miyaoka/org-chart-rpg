@@ -477,6 +477,10 @@ public class GameController : MonoBehaviour {
     s.name.Value = Names.getRandomName (s.gender.Value);
     s.attackInterval.Value = 5f;
 
+    s.skinColor.Value = Util.HSVToRGB (.1f, UnityEngine.Random.Range(.25f, .8f), UnityEngine.Random.Range (1f, 1f));
+    s.hairColor.Value = Util.HSVToRGB (UnityEngine.Random.Range(0,1f), .5f, UnityEngine.Random.Range (.3f, .65f));
+    s.clothColor.Value = Util.HSVToRGB (UnityEngine.Random.Range(0,1f), .4f, .7f);
+
     return s;
   }
   /*
