@@ -358,7 +358,7 @@ public class GameController : MonoBehaviour {
     } else {
       //orgroot
       createStaffNode (node.staff.Value, parentNode.childNodes, true);
-      GameSounds.promote.Play ();
+//      GameSounds.promote.Play ();
     }
 
     node.isAssigned.Value = false;
