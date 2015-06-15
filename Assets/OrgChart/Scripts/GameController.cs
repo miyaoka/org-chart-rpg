@@ -307,6 +307,11 @@ public class GameController : MonoBehaviour {
       if (staff == null) {
         continue;
       }
+      if (0 >= staff.health.Value) {
+        Destroy (n.gameObject);
+        continue;
+      }
+      staff.damage.Value = 0;
       staff.age.Value++;
       staff.lastLevel.Value = staff.baseLevel.Value;
       staff.baseLevel.Value = growSkill(staff.age.Value, staff.baseLevel.Value);

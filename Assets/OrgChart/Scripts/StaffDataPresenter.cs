@@ -151,12 +151,6 @@ public class StaffDataPresenter : MonoBehaviour {
           .AddTo(staffResources);
 
         gc.onQuest
-          .Where(q => !q)
-          .Subscribe(q => {
-            s.damage.Value = 0;
-          }).AddTo(staffResources);
-
-        gc.onQuest
           .Where(q => q)
           .Subscribe(q => {
             s.attackInterval.Value = (Random.value * .2f + .9f) * 5f;
