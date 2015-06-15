@@ -278,7 +278,7 @@ public class GameController : MonoBehaviour {
   }
 
   public void createQuest(float mp){
-    GameObject obj = Instantiate(questPrefab) as GameObject;
+    var obj = Instantiate(questPrefab);
     var q = obj.GetComponent<QuestPresenter> ();
 
     int id = obj.GetInstanceID();
@@ -301,7 +301,7 @@ public class GameController : MonoBehaviour {
 
 
 
-    q.transform.SetParent (questContainer);
+    q.transform.SetParent (questContainer, false);
   }
 
   void updateProjects(){
