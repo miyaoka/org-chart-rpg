@@ -405,13 +405,13 @@ public class GameController : MonoBehaviour {
     var s = new StaffModel ();
     var age = UnityEngine.Random.Range(0,30);
 
-    age = (int)(UDFs.BetaInv (UnityEngine.Random.value, 1.4d, 1d, 0, 0) * 40);
+//    age = (int)(UDFs.BetaInv (UnityEngine.Random.value, 1.4d, 1d, 0, 0) * 40);
 
     int baseSkill = UnityEngine.Random.Range(1,1);
     for(int i = 0; i < age; i++){
       baseSkill = growSkill (i, baseSkill);
     }
-    s.baseLevel.Value = s.lastLevel.Value = Mathf.CeilToInt((float)baseSkill * .625f);
+    s.baseLevel.Value = s.lastLevel.Value = Mathf.CeilToInt ((float)baseSkill * 1f);//.725f);
     s.age.Value = age;
     s.gender.Value = (.2f > UnityEngine.Random.value) ? 0 : 1;
     s.name.Value = Names.getRandomName (s.gender.Value);
