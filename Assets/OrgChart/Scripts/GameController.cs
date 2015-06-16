@@ -348,9 +348,6 @@ public class GameController : MonoBehaviour {
 //      parentStaff.isMoved = false;
       parentStaff.gameObject.GetComponentInChildren<StaffNodeDragHandler> ().enabled = true;
     }
-    if (0 < tierDiff) {
-      GameSounds.promote.Play ();
-    }
   }
 
  
