@@ -40,14 +40,11 @@ public class NodePresenter : MonoBehaviour {
 
 
   void Awake(){
-    //define model
-
-    var childStream = childNodes.gameObject.OnTransformChildrenChangedAsObservable ();
 
     //difine props
     childCount = 
-      childStream
-        .Select (_ => childNodes.childCount)
+      childNodes
+        .ObserveEveryValueChanged(t => t.childCount)
         .ToReactiveProperty ();
 
     isEmpty =
