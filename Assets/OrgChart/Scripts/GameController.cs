@@ -207,7 +207,7 @@ public class GameController : MonoBehaviour {
         continue;
       }
       if (0 >= staff.health.Value) {
-        Destroy (n.gameObject);
+        n.isAssigned.Value = false;
         continue;
       }
       staff.damage.Value = 0;
