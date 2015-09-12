@@ -12,7 +12,7 @@ public class BgmManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-    GameController.Instance.onQuest
+    GameManager.Instance.onQuest
       .Subscribe (q => {
         au.clip = q ? battleBGM : townBGM;
         au.Play();
