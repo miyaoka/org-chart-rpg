@@ -23,7 +23,7 @@ public class AvaterPresenter : MonoBehaviour {
     var node = GetComponentInParent<NodePresenter> ();
     var gm = GameManager.Instance;
     var origX = avatar_UI.transform.localPosition.x;
-    node.staffModel
+    node.model
       .Where (s => s != null)
       .Subscribe (s => {
 
@@ -80,25 +80,31 @@ public class AvaterPresenter : MonoBehaviour {
           })
           .AddTo(staffResources);
 
+
+        //攻撃処理
         var armR_UI = armR_Img.gameObject;
-        /*
 
-        gm.onQuest
-          .Select(q => !q)
-          .Subscribe(_ => {
-            LeanTween.cancel(avatar_UI);
-            LeanTween.cancel(armR_UI);
+        gm.onBattle
+          .Subscribe(b => {
+            if(b){
+              armR_UI.transform.localRotation = Quaternion.Euler(0, 0, 10);
+            }else{
+              LeanTween.cancel(avatar_UI);
+              LeanTween.cancel(armR_UI);
+              armR_UI.transform.localRotation = Quaternion.identity;// Quaternion.Euler(0, 0, 10);
+            }
+            s.attackInterval.Value = (Random.value * .2f + .9f) * 5f;
+            s.attackTimer.Value = 0;
 
-            armR_UI.transform.localRotation = Quaternion.Euler(0, 0, 10);
           })
           .AddTo(staffResources);
-        gm.battleTimer
-          .CombineLatest(node.isHired, (l, r) => r)
+
+        node.isHired
           .CombineLatest(s.health, (l, r) => l && 0 < r) 
           .Where(r => r)
-          .Subscribe (_ => {
-
-            s.attackTimer.Value += Time.deltaTime;
+          .CombineLatest(gm.battleUpdate, (l, r) => r)
+          .Subscribe (timedelta => {
+            s.attackTimer.Value += timedelta;
             if(s.attackInterval.Value <= s.attackTimer.Value){
               s.attackTimer.Value = 0;
               s.attackInterval.Value = (Random.value * .2f + .9f) * 5f;
@@ -111,6 +117,7 @@ public class AvaterPresenter : MonoBehaviour {
                 });
               });
               LeanTween.moveLocalX (avatar_UI, origX-20, .5f).setEase (LeanTweenType.easeOutBounce).setOnComplete( () => {
+//                Debug.Log("attack2:" + node.currentLevel.Value.ToString());
 //                  gm.attackToQuest(node);
                 LeanTween.moveLocalX (avatar_UI, origX, .3f).setEase (LeanTweenType.easeOutCubic);
               });
@@ -118,7 +125,6 @@ public class AvaterPresenter : MonoBehaviour {
             }
           })
           .AddTo (staffResources);
-          */
 
       })
       .AddTo (this);

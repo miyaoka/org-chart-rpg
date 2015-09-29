@@ -8,6 +8,7 @@ public class StaffModel : CombatantModel {
   public ReactiveProperty<int> baseLevel =  new ReactiveProperty<int> ();  
   public ReactiveProperty<int> lastLevel =  new ReactiveProperty<int> ();  
   public ReactiveProperty<int> age = new ReactiveProperty<int> ();
+  public ReactiveProperty<int> hiringCost = new ReactiveProperty<int> ();
 
   public ReactiveProperty<Color> skinColor = new ReactiveProperty<Color>();
   public ReactiveProperty<Color> hairColor = new ReactiveProperty<Color>();
@@ -31,5 +32,8 @@ public class StaffModel : CombatantModel {
         baseLevel.Value = (int)Mathf.Max(1, baseLevel.Value - 1);
       }
     }
+  }
+  public bool isRetireAge(){
+    return age.Value >= ageSpan;
   }
 }

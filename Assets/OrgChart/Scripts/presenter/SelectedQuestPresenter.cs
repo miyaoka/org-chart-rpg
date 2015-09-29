@@ -70,7 +70,7 @@ public class SelectedQuestPresenter : MonoBehaviour {
             q.attackTimer.Value = 0;
           }).AddTo(questResources);
 
-        gm.battleTimer
+        gm.battleUpdate
           .Subscribe (_ => {
 
             q.attackTimer.Value += Time.deltaTime;

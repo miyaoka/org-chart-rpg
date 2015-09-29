@@ -11,18 +11,30 @@ public class BgmManager : MonoBehaviour {
 //	AudioClip[] acs;
 	// Use this for initialization
 	void Start () {
-
-    GameManager.Instance.onQuest
-      .Subscribe (q => {
-        au.clip = q ? battleBGM : townBGM;
-        au.Play();
-    });
+    var gm = GameManager.Instance;
+    gm.gameState
+      .Subscribe (s => {
+        switch (s) {
+        case GameState.Organizing:
+          Play(townBGM);
+          break;
+        case GameState.QuestEnter:
+          Play(battleBGM);
+          break;
+        default:
+          break;
+        }
+      });
 
     /*
 		acs = Resources.LoadAll<AudioClip>("bgm");
 		play();
   */  
 	}
+  void Play(AudioClip ac){
+    au.clip = ac;
+    au.Play ();
+  }
   /*
 	void play(){
 		if(acs.Length == 0){

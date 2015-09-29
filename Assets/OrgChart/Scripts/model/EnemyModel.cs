@@ -3,5 +3,5 @@ using System.Collections;
 using UniRx;
 
 public class EnemyModel : CombatantModel {
-  public ReactiveProperty<float> baseHealth =  new ReactiveProperty<float> (); 
+  public ReactiveProperty<Vector2> avatarSizeDelta =  new ReactiveProperty<Vector2> (); 
 }

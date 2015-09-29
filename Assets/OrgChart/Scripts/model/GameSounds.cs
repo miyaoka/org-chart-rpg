@@ -27,8 +27,4 @@ public class GameSounds : MonoBehaviour {
     miss = audios [8];
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }

@@ -10,10 +10,21 @@ public class BgImagePresenter : MonoBehaviour {
 
   // Use this for initialization
   void Start () {
-    Image bg = GetComponent<Image> ();
-    GameManager.Instance.onQuest
-      .Subscribe (q => {
-        bg.sprite = q ? battleBg : planBg;
+    var bg = GetComponent<Image> ();
+    var gm = GameManager.Instance;
+    gm.gameState
+      .Subscribe (s => {
+        switch (s) {
+        case GameState.PeriodClosing:
+        case GameState.Organizing:
+          bg.sprite = planBg;
+          break;
+        case GameState.QuestEnter:
+          bg.sprite = battleBg;
+          break;
+        default:
+          break;
+        }
       });
 
   }

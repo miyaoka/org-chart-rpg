@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 
-public class NodePresenter : MonoBehaviour {
+public class NodePresenter : CombatantPresenter {
 
   //view
   [SerializeField] public RectTransform childNodes;
@@ -27,6 +27,8 @@ public class NodePresenter : MonoBehaviour {
   public ReactiveProperty<int> currentLevelTotal = new ReactiveProperty<int>();
   public ReactiveProperty<int> manCount = new ReactiveProperty<int>();
   public ReactiveProperty<int> manCountTotal = new ReactiveProperty<int>();
+  public ReactiveProperty<int> salary = new ReactiveProperty<int>();
+  public ReactiveProperty<int> salaryTotal = new ReactiveProperty<int>();
 
   public ReadOnlyReactiveProperty<bool> hasChild { get; private set; }
 
@@ -41,7 +43,7 @@ public class NodePresenter : MonoBehaviour {
   public ReactiveProperty<NodePresenter> parentNode = new ReactiveProperty<NodePresenter>();
   public ReactiveProperty<int?> parentDiff = new ReactiveProperty<int?>();
 
-  public ReactiveProperty<StaffModel> staffModel = new ReactiveProperty<StaffModel> ();
+  public ReactiveProperty<StaffModel> model = new ReactiveProperty<StaffModel> ();
 
   CompositeDisposable childResources = new CompositeDisposable();
   CompositeDisposable staffResources = new CompositeDisposable();
@@ -52,7 +54,7 @@ public class NodePresenter : MonoBehaviour {
   void Awake(){
 
 
-    //difine props
+    //子ノードの数
     childCount = childNodes
       .ObserveEveryValueChanged(t => t.childCount)
       .ToReactiveProperty ();
@@ -60,6 +62,18 @@ public class NodePresenter : MonoBehaviour {
     hasChild = childCount
       .Select (c => 0 < c)
       .ToReadOnlyReactiveProperty ();
+
+    //割当人員の数
+    manCount =
+      isAssigned
+        .Select (a => a ? 1 : 0)
+        .ToReactiveProperty ();
+
+    //給料
+    salary =
+      model
+        .Select (sm => sm != null ? sm.baseLevel.Value : 0)
+        .ToReactiveProperty ();
 
 
     //if have parent node
@@ -95,7 +109,7 @@ public class NodePresenter : MonoBehaviour {
 
 
     //if have staff
-    staffModel
+    model
       .Subscribe (s => {
 
         staffResources.Clear();
@@ -149,7 +163,7 @@ public class NodePresenter : MonoBehaviour {
       .Select (n => n == this)
       .ToReactiveProperty ();
 
-
+    //アサインなし or ドラッグ中 -> empty
     isEmpty = isAssigned
       .CombineLatest (isDragged, (l, r) => !l || r)
       .ToReadOnlyReactiveProperty ();
@@ -188,7 +202,7 @@ public class NodePresenter : MonoBehaviour {
       .Subscribe (_ => {
         //create cursor for drag
         var cursor = gm.createNode();
-        cursor.staffModel.Value = staffModel.Value;
+        cursor.model.Value = model.Value;
         var cursorCG = cursor.GetComponent<CanvasGroup>();
         cursorCG.blocksRaycasts = false;
         cursorCG.alpha = dragAlpha;
@@ -220,19 +234,29 @@ public class NodePresenter : MonoBehaviour {
       .Subscribe (e => {
         var dragNode = e.pointerDrag.GetComponentInParent<NodePresenter>();
 
+        //新規雇用なら雇用費を支払い
+        if(!dragNode.isHired.Value){
+          GameSounds.accounting.Play();
+          gm.money.Value -= dragNode.model.Value.hiringCost.Value;
+        } 
+        else{
+          GameSounds.drop.Play();
+        }
         //create child or copy value
         if(isAssigned.Value)
         {
           var child = gm.createNode(childNodes);
-          child.staffModel.Value = dragNode.staffModel.Value;
+          child.model.Value = dragNode.model.Value;
           child.parentNode.Value = this;
           child.tier.Value = tier.Value + 1;
+          child.isHired.Value = true;
         }else{
-          staffModel.Value = dragNode.staffModel.Value;
+          model.Value = dragNode.model.Value;
+          isHired.Value = true;
         }
 
         //clear pointer value
-        dragNode.staffModel.Value = null;
+        dragNode.model.Value = null;
         gm.draggingNode.Value = null;
 
         //highlight
@@ -256,22 +280,54 @@ public class NodePresenter : MonoBehaviour {
       .AddTo (this);    
 
   }
+  /*
+   * 子の数の変更時に子内容の監視を作り直す
+   */
   void watchChildProps(){
     childResources.Clear ();
 
     var lvList = new List<ReactiveProperty<int>> {currentLevel};
     var ccList = new List<ReactiveProperty<int>> {childCount};
     var mcList = new List<ReactiveProperty<int>> {manCount};
+    var saList = new List<ReactiveProperty<int>> {salary};
 
     foreach (Transform child in childNodes) {
       var node = child.GetComponent<NodePresenter> ();
       lvList.Add (node.currentLevelTotal);
       ccList.Add (node.childCountTotal);
       mcList.Add (node.manCountTotal);
+      saList.Add (node.salaryTotal);
     }
 
+    Observable
+      .CombineLatest (lvList.ToArray ())
+      .Select (list => list.Sum())
+      .Subscribe (v => currentLevelTotal.Value = v)
+      .AddTo (childResources);
 
-    //draw child line
+    Observable
+      .CombineLatest (ccList.ToArray ())
+      .Select (list => list.Sum())
+      .Subscribe (v => childCountTotal.Value = v)
+      .AddTo (childResources);
+
+    Observable
+      .CombineLatest (mcList.ToArray ())
+      .Select (list => list.Sum ())
+      .Subscribe (v => manCountTotal.Value = v)
+      .AddTo (childResources);    
+
+    Observable
+      .CombineLatest (saList.ToArray ())
+      .Select (list => list.Sum ())
+      .Subscribe (v => salaryTotal.Value = v)
+      .AddTo (childResources);    
+
+    drawFamilyLine ();
+
+  }
+  void drawFamilyLine()
+  {
     if (1 < childCount.Value) {
       var firstC = childNodes.GetChild (0);
       var lastC = childNodes.GetChild (childCount.Value - 1);
@@ -297,27 +353,7 @@ public class NodePresenter : MonoBehaviour {
           childrenLineH.rectTransform.offsetMax = new Vector2(v.y, childrenLineH.rectTransform.offsetMax.y);
         })
         .AddTo(childResources);
-    }
-
-    Observable
-      .CombineLatest (lvList.ToArray ())
-      .Select (list => list.Sum())
-      .Subscribe (v => currentLevelTotal.Value = v)
-      .AddTo (childResources);
-
-    Observable
-      .CombineLatest (ccList.ToArray ())
-      .Select (list => list.Sum())
-      .Subscribe (v => childCountTotal.Value = v)
-      .AddTo (childResources);
-
-    Observable
-      .CombineLatest (mcList.ToArray ())
-      .Select (list => list.Sum ())
-      .Subscribe (v => manCountTotal.Value = v)
-      .AddTo (childResources);    
-
-
+    }    
   }
 
   void OnDestroy()

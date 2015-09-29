@@ -16,6 +16,7 @@ public class StaffPresenter : MonoBehaviour {
   [SerializeField] RectTransform avatarUI;
   [SerializeField] GameObject costUI;
   [SerializeField] Text costText;
+  [SerializeField] RectTransform attackTimerUI;
 
 
 
@@ -23,6 +24,7 @@ public class StaffPresenter : MonoBehaviour {
   CompositeDisposable staffResources = new CompositeDisposable();
 
   void Start(){
+    var gm = GameManager.Instance;
     var node = GetComponentInParent<NodePresenter> ();
     //        var relation = GetComponent<Image> ();
 
@@ -45,7 +47,11 @@ public class StaffPresenter : MonoBehaviour {
       })
       .AddTo(this);
 
-    node.staffModel
+    node.isHired
+      .Subscribe (b => costUI.SetActive (!b))
+      .AddTo (this);
+
+    node.model
       .Subscribe (s => {
 
         staffResources.Clear();
@@ -53,6 +59,16 @@ public class StaffPresenter : MonoBehaviour {
           return;
         }
 
+        //雇用費
+        s.hiringCost
+          .SubscribeToText(costText)
+          .AddTo(staffResources);
+
+        s.hiringCost
+          .CombineLatest(gm.money, (l,r) => l > r)
+          .Subscribe(b => costText.color = b ? new Color(1,0,0) : new Color(1,1,1))
+          .AddTo(staffResources);
+        
         //部下が居ればbaseも表示する
         s.baseLevel
           .CombineLatest(node.hasChild, (l, r) => r ? "/" + l : "" )
@@ -145,6 +161,12 @@ public class StaffPresenter : MonoBehaviour {
           .CombineLatest (node.currentLevel, (l, r) => Mathf.Max(0, r == 0 ? 0 : l / r ))
           .Subscribe (w => healthUI.anchorMax = new Vector2(w, 1))
           .AddTo (staffResources);
+
+        s.attackTimer
+          .CombineLatest(s.attackInterval, (l, r) => Mathf.Min(1f, r == 0 ? 0 : l / r))
+          .Subscribe(w => attackTimerUI.anchorMax = new Vector2(1, w))
+          .AddTo(staffResources);
+        
 
 
       })

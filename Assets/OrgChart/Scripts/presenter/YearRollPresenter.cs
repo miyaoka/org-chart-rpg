@@ -31,9 +31,4 @@ public class YearRollPresenter : MonoBehaviour {
       LeanTween.moveLocalY (this.gameObject, pH, 1f).setEase (LeanTweenType.easeInQuint);
     });
   }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }
